@@ -6,12 +6,47 @@ import './Home.css'
 
 const Home = () => {
     const [allActors, setAllActors] = useState([]);
+    const [selectedActor, setSelectedActor] = useState([]);
+    const [remaining, setRemaining] = useState(0);
+    const [totalCost, setTotalCost] = useState(0);
+    const totalBudget = 20000;
+
     useEffect(() => {
         fetch('./data.json')
             .then(res => res.json())
             .then(data => setAllActors(data))
     }, [])
-    console.log(allActors);
+    // console.log(allActors);
+
+    const handleSelectActor = (actor) => {
+        // console.log(actor);
+        const isExist = selectedActor.find(item => item.id === actor.id);
+        let cost = actor.salary;
+
+        if (isExist) {
+            return alert('Already Booked');
+        }
+        else {
+
+            selectedActor.forEach(item => {
+                cost = cost + item.salary;
+            })
+
+            let totalRemaining = totalBudget - cost;
+
+            if(cost > totalBudget){
+                return alert('Budget finished')
+            }
+            else{
+                setTotalCost(cost);
+                setRemaining(totalRemaining);
+                const newSelectedActor = [...selectedActor, actor];
+                setSelectedActor(newSelectedActor);
+            }
+        }
+    }
+    // console.log(selectedActor);
+
     return (
         <div className='container'>
             <div className="home-container">
@@ -36,13 +71,17 @@ const Home = () => {
                                     <p>salary: {actor.salary}</p>
                                     <p>{actor.role}</p>
                                 </div>
-                                <button className='card-btn'>Select</button>
+                                <button
+                                    onClick={() => handleSelectActor(actor)} className='card-btn'>Select</button>
                             </div>
                         ))}
                 </div>
 
                 <div className="cart">
-                    <h3>This is cart</h3>
+                    <Cart 
+                    selectedActor={selectedActor}
+                    remaining={remaining}
+                    totalCost={totalCost}></Cart>
                 </div>
             </div>
         </div>
